@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisper Lab</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Code Highlighting (Optional, just in case) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <h1 class="logo"><i data-lucide="mic"></i> Whisper Lab</h1>
+        </div>
+        <div class="nav-right">
+            <button id="settingsBtn" class="icon-btn"><i data-lucide="settings"></i> Settings</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button id="closeSettingsBtn" class="icon-btn"><i data-lucide="x"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="apiKey">GROQ API Key</label>
+                        <input type="password" id="apiKey" placeholder="gsk_...">
+                        <p class="help-text">Your key is stored locally in your browser.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveSettingsBtn" class="btn primary-btn">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            <!-- Left Column: Input -->
+            <div class="panel input-panel">
+                <div class="section-header">
+                    <h2><i data-lucide="upload-cloud"></i> Audio Input</h2>
+                </div>
+                
+                <div class="language-select">
+                    <label for="language">Language:</label>
+                    <select id="language">
+                        <option value="">Auto-detect</option>
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="hi">Hindi</option>
+                        <option value="ja">Japanese</option>
+                        <option value="zh">Chinese</option>
+                    </select>
+                </div>
+
+                <!-- Record Section -->
+                <div class="record-section card">
+                    <h3>Record Audio</h3>
+                    <div class="visualizer-container">
+                        <canvas id="visualizer" width="400" height="100"></canvas>
+                        <div id="recordingTimer" class="timer">00:00</div>
+                    </div>
+                    <div class="record-controls">
+                        <button id="recordBtn" class="btn primary-btn"><i data-lucide="mic"></i> Start Recording</button>
+                    </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div class="upload-section card" id="dropZone">
+                    <h3>Upload File</h3>
+                    <div class="upload-area">
+                        <i data-lucide="upload" class="upload-icon"></i>
+                        <p>Drag and drop audio file here or click to browse.</p>
+                        <p class="help-text">Max 25MB (.mp3, .wav, .m4a, .webm, .ogg)</p>
+                        <input type="file" id="fileInput" accept=".mp3,.wav,.m4a,.webm,.ogg" class="hidden">
+                        <button id="browseBtn" class="btn outline-btn">Browse Files</button>
+                    </div>
+                </div>
+
+                <!-- Audio Preview -->
+                <div id="audioPreviewContainer" class="card hidden">
+                    <h3>Selected Audio</h3>
+                    <audio id="audioPlayer" controls></audio>
+                    <div class="preview-actions">
+                        <button id="transcribeBtn" class="btn primary-btn w-full"><i data-lucide="zap"></i> Transcribe Audio</button>
+                        <button id="clearAudioBtn" class="btn outline-btn danger-btn"><i data-lucide="trash-2"></i></button>
+                    </div>
+                </div>
+                
+                <div id="statusMessage" class="status-message"></div>
+            </div>
+
+            <!-- Right Column: Output -->
+            <div class="panel output-panel">
+                <div class="section-header">
+                    <h2><i data-lucide="file-text"></i> Transcript</h2>
+                    <div class="header-actions">
+                        <button id="clearTranscriptBtn" class="btn outline-btn danger-btn sm"><i data-lucide="trash-2"></i> Clear</button>
+                    </div>
+                </div>
+
+                <div class="transcript-container card">
+                    <div id="transcriptContent" class="transcript-content">
+                        <p class="placeholder-text">Transcript will appear here...</p>
+                    </div>
+                    
+                    <div class="export-actions hidden" id="exportActions">
+                        <button id="copyBtn" class="btn outline-btn sm"><i data-lucide="copy"></i> Copy</button>
+                        <button id="downloadTxtBtn" class="btn outline-btn sm"><i data-lucide="download"></i> .txt</button>
+                        <button id="downloadSrtBtn" class="btn outline-btn sm"><i data-lucide="download"></i> .srt</button>
+                    </div>
+                </div>
+
+                <div class="ai-processing-section card hidden" id="aiSection">
+                    <h3>AI Post-Processing</h3>
+                    <div class="ai-actions">
+                        <button id="summaryBtn" class="btn outline-btn"><i data-lucide="list"></i> Executive Summary</button>
+                        <button id="actionItemsBtn" class="btn outline-btn"><i data-lucide="check-square"></i> Action Items</button>
+                    </div>
+                    <div id="aiOutput" class="ai-output hidden"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
