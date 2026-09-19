@@ -1,0 +1,19 @@
+name: Validate Codebase
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate static files
+        run: |
+          test -f index.html
+          test -f styles.css
+          test -f app.js
+          test -f README.md
