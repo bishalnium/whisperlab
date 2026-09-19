@@ -1,0 +1,16 @@
+# Environment
+.env
+.env.local
+
+# Audio & Cache
+*.wav
+*.mp3
+*.m4a
+*.webm
+*.ogg
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
